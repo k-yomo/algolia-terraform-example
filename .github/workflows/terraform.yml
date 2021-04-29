@@ -11,16 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        workdir:
-          - ./terraform/dev
-          - ./terraform/prod
+        workdir: [./terraform/prod]
 
     steps:
       - uses: actions/checkout@master
       - uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 0.15.0-beta1
-      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+          terraform_version: 0.15.0
+      - uses: google-github-actions/setup-gcloud@master
         with:
           version: "272.0.0"
           service_account_key: ${{ secrets.PROD_GCP_CI_USER_KEY_BASE64 }}
@@ -35,22 +33,25 @@ jobs:
       - name: Terraform Init
         id: init
         run: terraform init
-        working-directory: ${{ matrix.workdir }}
+        working-directory: ./terraform/prod
 
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
-        working-directory: ${{ matrix.workdir }}
+        working-directory: ./terraform/prod
 
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color
         continue-on-error: true
-        working-directory: ${{ matrix.workdir }}
+        working-directory: ./terraform/prod
+        env:
+          ALGOLIA_API_KEY: ${{ secrets.PROD_ALGOLIA_API_KEY }}
 
       - uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         env:
+          ALGOLIA_API_KEY: ${{ secrets.PROD_ALGOLIA_API_KEY }}
           PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
