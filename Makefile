@@ -1,5 +1,9 @@
 
 
+.PHONY: fmt
+fmt:
+	terraform fmt --recursive terraform
+
 .PHONY: create-shared-tf
 create-shared-tf:
 	touch ./terraform/shared/${file}
