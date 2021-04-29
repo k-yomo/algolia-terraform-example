@@ -26,3 +26,9 @@ resource "algolia_index" "items" {
     ]
   }
 }
+
+# api key for application server
+resource "algolia_api_key" "app" {
+  acl     = ["search", "browse"]
+  indexes = [algolia_index.items.name]
+}
