@@ -5,7 +5,7 @@ on:
       - ".github/workflows/terraform.yml"
       - "terraform/**"
   schedule:
-    - cron: '* * * * *'
+    - cron: '*/10 * * * *'
 
 jobs:
   terraform:
